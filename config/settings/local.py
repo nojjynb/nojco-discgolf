@@ -8,10 +8,10 @@ DEBUG = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 SECRET_KEY = env(
     "DJANGO_SECRET_KEY",
-    default="gmqGHacJmeN2RZqjDG5DYyxCBzVcJONBiicD2yqjVopgFTVDNgRg6Z6gjT95BeeX",
+    default="cDc7dqafknM3Om62aLvPCCMh62Q8OBcK7JHjqM8C4iQPix5EzuA7H3oFTznxauJt",
 )
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1", "jonathanjhall.com", "discgolf.jonathanjhall.com", "discgolf.jonathanjhall.com:8000"]
 
 # CACHES
 # ------------------------------------------------------------------------------
@@ -54,7 +54,21 @@ INTERNAL_IPS = ["127.0.0.1", "10.0.2.2"]
 # django-extensions
 # ------------------------------------------------------------------------------
 # https://django-extensions.readthedocs.io/en/latest/installation_instructions.html#configuration
-INSTALLED_APPS += ["django_extensions"]  # noqa F405
+INSTALLED_APPS += ["django_extensions",
+'allauth.socialaccount.providers.google',]  # noqa F405
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'nojco_disc_golf',
+        'USER': 'ndg',
+        'PASSWORD': 'ncdg2021',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
+    }
+}
+DATABASES["default"]["ATOMIC_REQUESTS"] = True
+ACCOUNT_ADAPTER = 'nojco_disc_golf.users.adapters.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'nojco_disc_golf.users.adapters.SocialAccountAdapter'
