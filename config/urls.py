@@ -16,6 +16,8 @@ urlpatterns = [
     path("users/", include("nojco_disc_golf.users.urls", namespace="users")),
     path("accounts/", include("allauth.urls")),
     # Your stuff: custom urls includes go here
+    path('scorecard/', include('nojco_disc_golf.scorecard.urls')),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

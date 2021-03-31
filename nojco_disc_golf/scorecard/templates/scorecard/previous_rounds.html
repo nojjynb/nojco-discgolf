@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+    {% block title %}Round {{ obect.title }}{% endblock %}
+
+    {% block content %}
+<h2>Previous Rounds</h2>
+
+{% if rounds %}
+
+    <ul class="list-group">
+        {% for round in rounds %}
+            <li class="list-group-item"><a href="{% url 'scorecard:round' round.id %}">{{ round.title }} - {{ round.date|date:"M d, Y" }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% endblock %}

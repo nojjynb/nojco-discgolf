@@ -65,6 +65,7 @@ DJANGO_APPS = [
     # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
     "django.forms",
+    "address",
 ]
 THIRD_PARTY_APPS = [
     "crispy_forms",
@@ -76,6 +77,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "nojco_disc_golf.users.apps.UsersConfig",
     # Your stuff: custom apps go here
+    "nojco_disc_golf.scorecard.apps.ScorecardConfig"
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -136,7 +138,7 @@ MIDDLEWARE = [
 ]
 
 # STATIC
-# ------------------------------------------------------------------------------
+# --------------------------------------------------------------------------cat ../.----
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-root
 STATIC_ROOT = str(ROOT_DIR / "staticfiles")
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+    {% block title %}Round {{ obect.title }}{% endblock %}
+
+    {% block content %}
+<h2>Active Rounds</h2>
+{% if rounds %}
+
+    <ul class="list-group">
+        {% for round in rounds %}
+            <li class="list-group-item"><a href="{% url 'scorecard:round' round.id %}">{{ round.title }} - {{ round.date|date:"M d, Y" }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    None
+{% endif %}
+<h2>New Round</h2>
+{% if course_list %}
+    
+        <form method="post" action="{% url 'scorecard:new_round' %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="form-floating col-md-4">
+                                    <select name="course" class="form-control" id="courseSelect">
+                                        {% for course in course_list %}
+                                        <option value="{{ course.id }}">{{ course.name }} - {{ course.holes }} Holes, Par {{ course.par }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <label for="courseSelect">Select a Course</lable>
+                                </div>
+                                <div class="form-floating  col-md-6">
+                                    <input type="text" class="form-control" name="title" placeholder="Optional Title" id="titleInput"/>
+                                    <label for="titleInput">Optional Title</label>
+                                </div>
+                                <div class="form-floating col-md-2 input-group-btn ">
+                                    <button class="btn btn-primary" type="submit" value="Start Round" style="height:100%" >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+                                    <path d="M11.596 8.697l-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                                    </svg>
+                                    Start Round
+                                    </btn>
+                                </div>
+                            </div>
+        </form>
+{% else %}
+    <p>No courses are available.</p>
+{% endif %}
+{% endblock %}

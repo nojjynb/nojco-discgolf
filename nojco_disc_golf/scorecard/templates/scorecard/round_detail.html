@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+    {% block title %}Round {{ obect.title }}{% endblock %}
+    
+    {% block container_override %}container_details {% endblock %}
+
+    {% block content %}
+            {% if object %}
+                    <div class="fixed-top thead border-bottom">
+                        <h1>{{ object.fancy_title }} Score Card</h1>
+                        <div class="row">
+                            <div class="col" class="text-left">Hole</div>
+                        {% for roundplayers in object.roundplayers_set.all %}
+                            <div class="col" class="text-left">{{ roundplayers.player.name }}</div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <div class="tbody">
+                        {% for hole in object.hole_set.all %}
+                            <div class="row">
+                                <div class="col border-end bold">{{hole.hole_num}}</div>
+                                {% for score in hole.score_set.all%}
+                                    <div class="col"><input type="number" min="0" max="8" value="{{score.score}}" onClick="this.select();" class="scoreInput form-control score" id="{{score.id}}" {% if object.active == False %}disabled="true" {% endif %} /></div>
+                                {% endfor %}
+                            </div>
+                            {% if hole.hole_num == 9 %}
+                            <div class="row  bold bg-primary">
+                                <div class="col border-end">OUT</div>
+                                {% for score in hole.score_set.all%}
+                                    <div class="col" id="{{ score.player.id }}-out"></div>
+                                {% endfor %}
+                                </div>
+                            {% elif hole.hole_num == 18 %}
+                            <div class="row bold bg-success">
+                                <div class="col border-end bold">IN</div>
+                                {% for score in hole.score_set.all%}
+                                    <div class="col" id="{{ score.player.id }}-in"></div>
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="fixed-bottom tfoot border-top bold">
+                        <div class="row bg-secondary">
+                            <div class="col border-end">SUM</div>
+                            {% for roundplayers in object.roundplayers_set.all %}
+                                <div class="col" id="{{ roundplayers.player.id }}-sum"></div>
+                            {% endfor %}
+                        </div>
+                        <div class="row bg-warning">
+                            <div class="col border-end">HDCP</div>
+                            {% for roundplayers in object.roundplayers_set.all %}
+                                <div class="col" id="{{ roundplayers.player.id }}-handicap">{{ roundplayers.handicap }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="row bg-info">
+                            <div class="col border-end">TOTAL</div>
+                            {% for roundplayers in object.roundplayers_set.all %}
+                                <div class="col" id="{{ roundplayers.player.id }}-total"></div>
+                            {% endfor %}
+                        </div>
+
+                    {% if object.active %}
+                    <div class="row">
+                    <div class="dropdown col">
+                        <button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="addPlayer" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="d-none d-md-inline">Add Player</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
+                                <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
+                                <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"></path>
+                            </svg>
+                            
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="addPlayer">
+                            {% for plyr in players %}
+                                <li><a class="dropdown-item" href="{% url 'scorecard:add_player_to_round' object.id plyr.id %}">{{ plyr.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% if autosave == False %}
+                    <div class="col">
+                    <button class="btn btn-success btn-lg" id="save" >
+                        Save Round
+                    </button>
+                    </div>
+                    {% endif %}
+
+                    <div class="col">
+                    <a href="{% url 'scorecard:complete_round' object.id %}" class="btn btn-success btn-lg float-end"  >
+                        Complete Round
+                    </a>
+                    </div>
+                    <!-- TODO: add confirmation 
+                    <div class="modal fade" id="confirm-delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                Confirm Round Completion
+                            </div>
+                            <div class="modal-body">
+                                Are you sure the round is done?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                <a class="btn btn-danger btn-ok">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    -->
+                    {% else %}
+                    <div class="col">
+                        <a href="{% url 'scorecard:delete_round' object.id %}" class="btn btn-danger btn-lg float-end"  >
+                            Delete Round
+                        </a>
+                        </div>
+                    {% endif %}
+                    
+                    </div>
+            {% else %}
+                <p>Round does not exist.</p>
+            {% endif %}  
+            
+        {% endblock%}
+
+        {% block inline_javascript %}
+        <script>
+            function score(){
+                {% for roundplayers in object.roundplayers_set.all %}
+                    var t=0;
+                    var out = 0;
+                    var rin = 0;
+                    var total = 0;
+                    var totalHoles = 0;
+                    {% for score in roundplayers.player.score_set.all %}
+                        {% if score.round.id == round.id %} {# this is very slow and should be repaired #}
+                            var hole = parseInt($("#{{score.id}}").val());
+                            if (hole > 0) {
+                                totalHoles++;
+                            }
+                            t = t + hole;
+                            {% if score.hole.hole_num == 9 %}
+                                out = t; out.toString();
+                                $("#{{ roundplayers.player.id }}-out").html(out);
+                                t = 0;
+                            {% elif score.hole.hole_num == 18 %}
+                                rin = t; rin.toString();
+                                $("#{{ roundplayers.player.id }}-in").html(rin);
+                                t = 0;
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                        //var handicap = Math.round(totalHoles/18 * {{ roundplayers.handicap }});
+                        total = out + rin;
+                        $('#{{ roundplayers.player.id }}-sum').html(total.toString());
+                        //total = total - handicap;
+                        total = total- {{ roundplayers.handicap }}; // moved handicap halving to view code
+                        total.toString();
+                        $('#{{ roundplayers.player.id }}-total').html(total)
+                {% endfor %}
+                
+            }
+
+            function save(){
+                var payload = {
+                    {% for roundplayers in object.roundplayers_set.all %}
+                        {% for score in roundplayers.player.score_set.all %}
+                            {% if score.round.id == round.id %} {# this is very slow and should be repaired #}
+                                'score-{{score.id}}' :  parseInt($("#{{score.id}}").val()),
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                };
+                $.ajax({
+                    url : "{% url 'scorecard:save_scores' round.id %}", 
+                    method : "POST",
+                    headers: {'X-CSRFToken': '{{csrf_token }}'},
+                    data: payload,
+                    dataType: "json"
+                }).done(function (response) {
+                    console.log(response.id + " " + response.name);
+                }).fail(function (error) {
+                    console.log(error);
+                });
+                
+            }
+
+            $(document).ready(function(){
+                score();
+	
+                $(".scoreInput").on('change', function () {
+                    score();
+                    {% if autosave %}
+                    save();
+                    {% endif %}
+                });
+                $('#confirm-delete').on('show.bs.modal', function(e) {
+                    $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+                });
+
+                {% if autosave == False %}
+                $("#save").click(function () {
+                    save();
+                });
+                {% endif %}
+                    
+            });
+
+        </script>
+        {% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+    {% block title %}Player Handicaps{% endblock %}
+
+    {% block content %}
+<h2>Player Handicaps</h2>
+
+{% if players %}
+    <table class="table table-responsive">
+        <thead>
+            <tr class="text-left">
+                <th scope="col">Player</th>
+                <th scope="col">Handicap</th>
+                <th scope="col">Best Round</th>
+                <th scope="col">Best Relative to Par</th>
+                <th scope="col">Rounds Counted</th>
+            </tr>
+        </thead>
+        {% for player in players %}
+            <tr class="text-left">
+                <td scope="col">{{ player.name }}</td>
+                <td scope="col">{{ player.handicap }}</td>
+                <td scope="col">
+                    {% for round in rounds %}
+                        {% if round.pk == player.best_round_id %}
+                            <a href="{% url 'scorecard:round' round.id %}">{{ round.fancy_title }}</a></td>
+                        {% endif %}
+                    {% endfor %}
+                <td scope="col">{{ player.best_delta }}</td>
+                <td scope="col">{{ player.rounds_counted }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <br><br>
+    <a class="btn btn-primary" href="{% url 'scorecard:calculate_handicaps' %}">Recalculate Handicaps</a>
+{% endif %}
+
+{% endblock %}
