@@ -19,7 +19,7 @@ padding-top: 5rem;
 }
 
 .score {
-width:50px;
+width:53px;
 }
 
 .thead {
@@ -55,4 +55,8 @@ width:50px;
 .container_details {
     padding-right: 12px;
     padding-left: 12px;
+}
+
+.round_controls {
+    padding-top:12px;
 }

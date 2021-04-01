@@ -4,6 +4,7 @@ Base settings to build other settings files upon.
 from pathlib import Path
 
 import environ
+from decouple import config
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # nojco_disc_golf/
@@ -272,3 +273,6 @@ SOCIALACCOUNT_ADAPTER = "nojco_disc_golf.users.adapters.SocialAccountAdapter"
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+# UPDATE secret key
+GOOGLE_API_KEY = config('GOOGLE_API_KEY')

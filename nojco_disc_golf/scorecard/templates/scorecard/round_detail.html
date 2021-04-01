@@ -20,7 +20,14 @@
                             <div class="row">
                                 <div class="col border-end bold">{{hole.hole_num}}</div>
                                 {% for score in hole.score_set.all%}
-                                    <div class="col"><input type="number" min="0" max="8" value="{{score.score}}" onClick="this.select();" class="scoreInput form-control score" id="{{score.id}}" {% if object.active == False %}disabled="true" {% endif %} /></div>
+                                    <div class="col">
+                                        <!--<input type="number" min="0" max="8" value="{{score.score}}" onClick="this.select();"  />-->
+                                        <select name="score-{{score.id}}" class="scoreInput form-select form-select-sm score" id="{{score.id}}" {% if object.active == False %}disabled="true" {% endif %}>
+                                            {% for opt in score_options %}
+                                                <option value="{{opt}}">{{opt}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                                 {% endfor %}
                             </div>
                             {% if hole.hole_num == 9 %}
@@ -60,8 +67,8 @@
                             {% endfor %}
                         </div>
 
+                        <div class="row round_controls">
                     {% if object.active %}
-                    <div class="row">
                     <div class="dropdown col">
                         <button class="btn btn-primary btn-lg dropdown-toggle" type="button" id="addPlayer" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="d-none d-md-inline">Add Player</span>
@@ -75,9 +82,21 @@
                             {% for plyr in players %}
                                 <li><a class="dropdown-item" href="{% url 'scorecard:add_player_to_round' object.id plyr.id %}">{{ plyr.name }}</a></li>
                             {% endfor %}
+                                <li><div class="dropdown-item">
+                                    <form action="{% url 'scorecard:add_new_player_to_round' object.id %}" method="post">
+                                        {% csrf_token %}
+                                        <input type="text" class="form_control" name="name" />
+                                        <button class="btn btn-primary" type="submit"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus" viewBox="0 0 16 16">
+                                            <path d="M6 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H1s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C9.516 10.68 8.289 10 6 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"></path>
+                                            <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5z"></path>
+                                        </svg></button>
+                                    </form>
+                                </div></li>
                         </ul>
                     </div>
+                    
                     {% if autosave == False %}
+
                     <div class="col">
                     <button class="btn btn-success btn-lg" id="save" >
                         Save Round
@@ -87,7 +106,7 @@
 
                     <div class="col">
                     <a href="{% url 'scorecard:complete_round' object.id %}" class="btn btn-success btn-lg float-end"  >
-                        Complete Round
+                        Complete
                     </a>
                     </div>
                     <!-- TODO: add confirmation 
@@ -116,6 +135,7 @@
                         </div>
                     {% endif %}
                     
+                </div>
                     </div>
             {% else %}
                 <p>Round does not exist.</p>

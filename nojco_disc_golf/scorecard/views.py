@@ -253,3 +253,17 @@ def calculate_handicaps(request):
 
     
     return HttpResponseRedirect(reverse('scorecard:player_handicaps'))
+
+    
+def new_player(request):
+    player_name = request.POST['name']
+    player, created = Player.objects.get_or_create(name=player_name)
+    player.save()
+    return player.pk
+
+
+# /scorecard/add_new_player_to_round/<round>
+def add_new_player_to_round(request, roundid):
+    playerid = new_player(request)
+    return add_player_to_round(request, roundid, playerid)
+    

@@ -21,16 +21,16 @@
                             {% csrf_token %}
                             <div class="row">
                                 <div class="form-floating col-md-4">
-                                    <select name="course" class="form-control" id="courseSelect">
+                                    <select name="course" class="form-control notranslate" translate="no" id="courseSelect">
                                         {% for course in course_list %}
-                                        <option value="{{ course.id }}">{{ course.name }} - {{ course.holes }} Holes, Par {{ course.par }}</option>
+                                        <option value="{{ course.id }}"  translate="no" class="notranslate">{{ course.name }} - {{ course.holes }} Holes, Par {{ course.par }}</option>
                                         {% endfor %}
                                     </select>
-                                    <label for="courseSelect">Select a Course</lable>
+                                    <label for="courseSelect" translate="no" class="notranslate">Select a Course</label>
                                 </div>
                                 <div class="form-floating  col-md-6">
                                     <input type="text" class="form-control" name="title" placeholder="Optional Title" id="titleInput"/>
-                                    <label for="titleInput">Optional Title</label>
+                                    <label for="titleInput" translate="no" class="notranslate">Optional Title</label>
                                 </div>
                                 <div class="form-floating col-md-2 input-group-btn ">
                                     <button class="btn btn-primary" type="submit" value="Start Round" style="height:100%" >
