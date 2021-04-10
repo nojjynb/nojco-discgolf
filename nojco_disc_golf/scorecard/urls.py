@@ -13,6 +13,7 @@ urlpatterns = [
     path('add_player_to_round/<int:roundid>/<int:playerid>', views.add_player_to_round, name='add_player_to_round'),
     path('add_new_player_to_round/<int:roundid>', views.add_new_player_to_round, name='add_new_player_to_round'),
     path('save_scores/<int:roundid>', views.save_scores, name='save_scores'),
+    path('update_scores/<int:roundid>', views.update_scores, name='update_scores'),
     path('previous_rounds', views.PreviousRounds.as_view(), name='previous_rounds'),
     path('complete_round/<int:roundid>', views.complete_round, name='complete_round'),
     path('delete_round/<int:roundid>', views.delete_round, name='delete_round'),

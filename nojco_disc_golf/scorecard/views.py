@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 from django.http import JsonResponse
+from django.core import serializers
 import pprint
 
 from .models import Round, Player, Hole, Course, Score
@@ -278,3 +279,26 @@ def add_new_player_to_round(request, roundid):
     playerid = new_player(request)
     return add_player_to_round(request, roundid, playerid)
     
+# /scorecard/update_scores/<round>
+def update_scores(request, roundid):
+    # Get the requested round
+    try:
+        rnd = Round.objects.get(pk=roundid)
+    except (KeyError, Round.DoesNotExist):
+        # Redisplay the question voting form.
+        return JsonResponse ({
+            'round': roundid,
+            'error_message': "You didn't select a valid round.",
+        })
+
+    response = {
+        'success' : True,
+        'scores' : serializers.serialize('json', rnd.score_set.all())
+    }
+    
+
+    # Always return an HttpResponseRedirect after successfully dealing
+    # with POST data. This prevents data from being posted twice if a
+    # user hits the Back button.
+    # Send user to the round view to add players/track scores
+    return JsonResponse(response)

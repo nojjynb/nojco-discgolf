@@ -110,6 +110,14 @@
                     </div>
                     {% endif %}
 
+                    
+                    <!--
+                    <div class="col">
+                        <button class="btn btn-success btn-lg" id="update" >
+                            Update Round
+                        </button>
+                        </div>
+                    -->
                     <div class="col">
                     <a href="{% url 'scorecard:complete_round' object.id %}" class="btn btn-success btn-lg float-end"  >
                         Complete
@@ -211,6 +219,27 @@
                 
             }
 
+            
+
+            function update(){
+
+                $.ajax({
+                    url : "{% url 'scorecard:update_scores' round.id %}", 
+                    method : "POST",
+                    headers: {'X-CSRFToken': '{{csrf_token }}'},
+                    dataType: "json"
+                }).done(function (response) {
+                    scores = JSON.parse(response.scores);
+                    $.each(scores, function(idx, score){
+                        $("#"+score.pk).val(score.fields.score);
+                    });
+
+                }).fail(function (error) {
+                    console.log(error);
+                });
+                
+            }
+
             $(document).ready(function(){
                 score();
 	
@@ -229,6 +258,12 @@
                     save();
                 });
                 {% endif %}
+
+                $("#update").click(function () {
+                    update();
+                });
+
+                setInterval(function(){update(); score()}, 10000);
                     
             });
 
