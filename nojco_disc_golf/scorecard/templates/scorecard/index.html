@@ -21,7 +21,7 @@
                             {% csrf_token %}
                             <div class="row">
                                 <div class="form-floating col-md-4">
-                                    <select name="course" class="form-control notranslate" translate="no" id="courseSelect">
+                                    <select name="course" class="form-select notranslate" translate="no" id="courseSelect">
                                         {% for course in course_list %}
                                         <option value="{{ course.id }}"  translate="no" class="notranslate">{{ course.name }} - {{ course.holes }} Holes, Par {{ course.par }}</option>
                                         {% endfor %}

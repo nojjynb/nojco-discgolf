@@ -10,6 +10,7 @@
                         <h1>{{ object.fancy_title }} Score Card</h1>
                         <div class="row">
                             <div class="col" class="text-left">Hole</div>
+                            <div class="col" class="text-left">Par</div>
                         {% for roundplayers in object.roundplayers_set.all %}
                             <div class="col" class="text-left">{{ roundplayers.player.name }}</div>
                         {% endfor %}
@@ -18,13 +19,16 @@
                     <div class="tbody">
                         {% for hole in object.hole_set.all %}
                             <div class="row">
-                                <div class="col border-end bold">{{hole.hole_num}}</div>
+                                <div class="col bold">{{hole.hole_num}}</div>
+                                <div class="col border-end bold">{{hole.par}}{% if hole.distance > 1 %}({{hole.distance}}){% endif %}</div>
+                                
+                                
                                 {% for score in hole.score_set.all%}
                                     <div class="col">
                                         <!--<input type="number" min="0" max="8" value="{{score.score}}" onClick="this.select();"  />-->
                                         <select name="score-{{score.id}}" class="scoreInput form-select form-select-sm score" id="{{score.id}}" {% if object.active == False %}disabled="true" {% endif %}>
                                             {% for opt in score_options %}
-                                                <option value="{{opt}}">{{opt}}</option>
+                                                <option value="{{opt}}" {% if score.score == opt %}selected{%endif %} {% if hole.par == opt%}class="bg-info"{% elif hole.par|add:"-1" == opt%}class="bg-success"{% elif hole.par|add:"1" == opt%}class="bg-warning"{% elif hole.par|add:"2" == opt%}class="bg-danger"{% endif %}>{{opt}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -32,14 +36,16 @@
                             </div>
                             {% if hole.hole_num == 9 %}
                             <div class="row  bold bg-primary">
-                                <div class="col border-end">OUT</div>
+                                <div class="col">OUT</div>
+                                <div class="col border-end"></div>
                                 {% for score in hole.score_set.all%}
                                     <div class="col" id="{{ score.player.id }}-out"></div>
                                 {% endfor %}
                                 </div>
                             {% elif hole.hole_num == 18 %}
                             <div class="row bold bg-success">
-                                <div class="col border-end bold">IN</div>
+                                <div class="col bold">IN</div>
+                                <div class="col border-end"></div>
                                 {% for score in hole.score_set.all%}
                                     <div class="col" id="{{ score.player.id }}-in"></div>
                                 {% endfor %}

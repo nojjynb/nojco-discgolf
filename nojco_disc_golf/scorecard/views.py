@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.views import generic
 from django.utils import timezone
 from django.http import JsonResponse
+import pprint
 
 from .models import Round, Player, Hole, Course, Score
 
@@ -43,6 +44,9 @@ class RoundView(generic.DetailView):
         context['players'] = Player.objects.all()
         context['score_options'] = range(10)
         context['autosave'] = True
+        holes = self.object.hole_set.all()
+        # print (holes)
+
         return context
 
 class HoleView(generic.DetailView):
@@ -75,17 +79,22 @@ def new_round(request):
             rt = course.name
         
         # Create a round from the course
-        round = course.round_set.create( title = rt, date = timezone.now())
+        rnd = course.round_set.create( title = rt, date = timezone.now())
 
         # Create holes for the round
-        # TBD: Should allow tempalte holes tied to course to set par
-        for i in range(course.holes) :
-            round.hole_set.create(hole_num = i+1)
+        if (course.holes > course.coursehole_set.count()):
+
+            for i in range(course.holes) :
+                rnd.hole_set.create(hole_num = i+1)
+        else:
+            for ch in course.coursehole_set.all():
+                rnd.hole_set.create(hole_num = ch.hole_num, par = ch.par, distance = ch.distance)
+                
         # Always return an HttpResponseRedirect after successfully dealing
         # with POST data. This prevents data from being posted twice if a
         # user hits the Back button.
         # Send user to the round view to add players/track scores
-        return HttpResponseRedirect(reverse('scorecard:round', args=(round.id,)))
+        return HttpResponseRedirect(reverse('scorecard:round', args=(rnd.id,)))
 
 # /scorecard/add_player_to_round/<round>
 def add_player_to_round(request, roundid, playerid):
@@ -237,19 +246,21 @@ def calculate_handicaps(request):
                 best_round['delta'] = delta1
                 best_round['round'] = roundplayer.round.pk
         # Average over 3 rounds, with a factor
-        hdcp = (round_total/rounds) * .9
-        # If changed, create historical
-        if (round(hdcp) != player.handicap):
-            
-            #print ("%s - %s -> %s" % (player.name, player.handicap , hdcp))
-            player.historicalhandicaps_set.create(handicap = hdcp, handicap_date = player.handicap_date)
-            # Update player and save
-            player.handicap = round(hdcp)
-            player.handicap_date = timezone.now()
-            player.best_round_id = best_round['round']
-            player.best_delta = best_round['delta']
-            player.rounds_counted = rounds
-            player.save()
+        #print (rounds)
+        if rounds > 0:
+            hdcp = (round_total/rounds) * .75
+            # If changed, create historical
+            if (True or round(hdcp) != player.handicap):
+                
+                #print ("%s - %s -> %s" % (player.name, player.handicap , hdcp))
+                player.historicalhandicaps_set.create(handicap = hdcp, handicap_date = player.handicap_date)
+                # Update player and save
+                player.handicap = round(hdcp)
+                player.handicap_date = timezone.now()
+                player.best_round_id = best_round['round']
+                player.best_delta = best_round['delta']
+                player.rounds_counted = rounds
+                player.save()
 
     
     return HttpResponseRedirect(reverse('scorecard:player_handicaps'))
