@@ -10,7 +10,6 @@
                         <h1>{{ object.fancy_title }} Score Card</h1>
                         <div class="row">
                             <div class="col" class="text-left">Hole</div>
-                            <div class="col" class="text-left">Par</div>
                         {% for roundplayers in object.roundplayers_set.all %}
                             <div class="col" class="text-left">{{ roundplayers.player.name }}</div>
                         {% endfor %}
@@ -19,8 +18,8 @@
                     <div class="tbody">
                         {% for hole in object.hole_set.all %}
                             <div class="row">
-                                <div class="col bold">{{hole.hole_num}}</div>
-                                <div class="col border-end bold">{{hole.par}}{% if hole.distance > 1 %}({{hole.distance}}){% endif %}</div>
+                                <div class="col border-endbold"><a href="{% url 'scorecard:hole' hole.pk %}" class="btn btn-sm btn-secondary" style="width:100%">{{hole.hole_num}} ({{hole.par}})</a>
+                                    </div>
                                 
                                 
                                 {% for score in hole.score_set.all%}
@@ -36,16 +35,14 @@
                             </div>
                             {% if hole.hole_num == 9 %}
                             <div class="row  bold bg-primary">
-                                <div class="col">OUT</div>
-                                <div class="col border-end"></div>
+                                <div class="col border-end">OUT</div>
                                 {% for score in hole.score_set.all%}
                                     <div class="col" id="{{ score.player.id }}-out"></div>
                                 {% endfor %}
                                 </div>
                             {% elif hole.hole_num == 18 %}
                             <div class="row bold bg-success">
-                                <div class="col bold">IN</div>
-                                <div class="col border-end"></div>
+                                <div class="col bold  border-end">IN</div>
                                 {% for score in hole.score_set.all%}
                                     <div class="col" id="{{ score.player.id }}-in"></div>
                                 {% endfor %}

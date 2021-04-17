@@ -43,7 +43,7 @@ class RoundView(generic.DetailView):
         context = super().get_context_data(**kwargs)
         # Add in a QuerySet of all the books
         context['players'] = Player.objects.all()
-        context['score_options'] = range(10)
+        context['score_options'] = range(8)
         context['autosave'] = True
         holes = self.object.hole_set.all()
         # print (holes)
@@ -52,6 +52,24 @@ class RoundView(generic.DetailView):
 
 class HoleView(generic.DetailView):
     model = Hole
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Add in a QuerySet of all the books
+        context['players'] = Player.objects.all()
+        context['score_options'] = range(10)
+        context['autosave'] = True
+
+        hole = context['hole']
+
+        if hole.hole_num > 1:
+            context['prev_hole'] = hole.pk -1
+        
+        if hole.hole_num < hole.round.hole_set.count():
+            context['next_hole'] = hole.pk +1
+        
+        return context
 
 
 # class ResultsView(generic.DetailView):
@@ -302,3 +320,53 @@ def update_scores(request, roundid):
     # user hits the Back button.
     # Send user to the round view to add players/track scores
     return JsonResponse(response)
+
+# /scorecard/update_scores/<round>
+def update_scores_for_hole(request, holeid):
+    # Get the requested round
+    try:
+        hole = Hole.objects.get(pk=holeid)
+    except (KeyError, Hole.DoesNotExist):
+        # Redisplay the question voting form.
+        return JsonResponse ({
+            'hole': holeid,
+            'error_message': "You didn't select a valid round.",
+        })
+
+    response = {
+        'success' : True,
+        'scores' : serializers.serialize('json', hole.score_set.all())
+    }
+    
+
+    # Always return an HttpResponseRedirect after successfully dealing
+    # with POST data. This prevents data from being posted twice if a
+    # user hits the Back button.
+    # Send user to the round view to add players/track scores
+    return JsonResponse(response)
+
+# /scorecard/next_hole
+def next_hole(request, pk):
+    # Get the requested hole
+    try:
+        hole = Hole.get_object_or_404(pk)
+    except (KeyError, Hole.DoesNotExist):
+        # Redisplay the question voting form.
+        return render(request, 'scorecard/error.html', {
+            'error_message': "No hole found.",
+        })
+
+    return HttpResponseRedirect(reverse('scorecard:round', args=(round.id,)))
+
+# /scorecard/previous_hole
+def previous_hole(request, pk):
+    # Get the requested hole
+    try:
+        hole = Hole.get_object_or_404(pk)
+    except (KeyError, Hole.DoesNotExist):
+        # Redisplay the question voting form.
+        return render(request, 'scorecard/error.html', {
+            'error_message': "No hole found.",
+        })
+
+    return HttpResponseRedirect(reverse('scorecard:round', args=(round.id,)))
