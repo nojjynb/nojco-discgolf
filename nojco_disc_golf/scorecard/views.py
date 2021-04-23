@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.core import serializers
 import pprint
 
-from .models import Round, Player, Hole, Course, Score
+from .models import Round, Player, Hole, Course, Score, RoundPlayers
 
 
 class IndexView(generic.ListView):
@@ -45,6 +45,7 @@ class RoundView(generic.DetailView):
         context['players'] = Player.objects.all()
         context['score_options'] = range(8)
         context['autosave'] = True
+        context['all_scores'] = Score.objects.filter(round=self.object)
         holes = self.object.hole_set.all()
         # print (holes)
 
@@ -370,3 +371,61 @@ def previous_hole(request, pk):
         })
 
     return HttpResponseRedirect(reverse('scorecard:round', args=(round.id,)))
+
+# /scorecard/get_score_json/<round>
+def get_score_json(request, roundid):
+    # Get the requested round ID
+    # Get the requested hole
+    try:
+        rnd = Round.objects.get(pk=roundid)
+    except (KeyError, Round.DoesNotExist):
+        return render(request, 'scorecard/error.html', {
+            'error_message': "Round not found.",
+        })
+    
+    t = 0
+    rout = 0
+    rin = 0
+    total = 0
+    totalHoles = 0
+    holeCount = 0
+
+    roundplayers = RoundPlayers.objects.filter(round=rnd)
+
+    response = {
+        'score_data':[]
+    }
+
+    # Loop over all players in round
+    for roundplayer in roundplayers:
+        # Get player score set
+        scores = Score.objects.filter(round=rnd, player=roundplayer.player)
+        
+        # get count
+        totalHoles = scores.count()
+
+        for score in scores:
+            if score.score > 0:
+                holeCount+=1
+            t += score.score
+
+            if score.hole.hole_num == 9:
+                rout = t
+                t = 0
+            elif score.hole.hole_num == 18:
+                rin = t
+                t = 0
+        player_data = {
+            'player_id' : roundplayer.player.id,
+            'out': rout,
+            'in': rin,
+            'ssum': rout + rin,
+            'handicap': roundplayer.handicap,
+            'total': rout + rin - roundplayer.handicap,
+            'hole_count':holeCount
+        }
+
+        response['score_data'].append(player_data)
+        
+    return JsonResponse(response)
+        

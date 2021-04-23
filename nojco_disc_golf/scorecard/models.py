@@ -112,6 +112,8 @@ def user_post_save(sender, instance, created, *args, **kwargs):
             player = players.first()
         except (KeyError, Player.DoesNotExist):
             player = instance.player_set.create(name=instance.username)
+    elif instance.username == 'admin':
+        return
     else:
         
         try:
